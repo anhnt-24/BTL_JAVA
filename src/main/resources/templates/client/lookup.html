@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:my="http://www.thymeleaf.org/dialect/my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/base.css}">
+    <link rel="stylesheet" th:href="@{/css/authenticate.css}">
+    <link rel="stylesheet" th:href="@{/css/order.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+    <title>Document</title>
+</head>
+<body> 
+    <div class="authenticateHeader">
+            <a href="/" class="authenticateHeader__icon">
+                Sopi          
+            </a>
+            <h2 class="authenticateHeader__title"><i class="fa-solid fa-magnifying-glass"></i> Tra cứu đơn hàng </h2>
+    </div>
+
+    <div class="main__container authenticateBody">
+        <p th:if="${messageResponse != null && messageResponse.status == 'error'}" class="error" style="margin-bottom:40px; display:none" th:text="${messageResponse.message}"></p>
+        <p th:if="${messageResponse != null && messageResponse.status == 'success'}" class="error" style="margin-bottom:40px; background-color:#00800021; border:1px solid green; display:none" th:text="${messageResponse.message}"></p>
+
+        <div class="loading__group" style="display: flex; flex-direction: column; align-items: center;">
+            <div class="loading"></div>
+            <p class="loading__title">Đang tải</p>
+
+        </div>
+        
+            <form th:if="${order==null}" style="display: none;" method="POST" th:action="@{/lookup/product}" class="authenticateform">               
+                <button type="button" onclick="window.history.back();" class="link_hover authenticateform__backward">
+                    <i class="fa-solid fa-left-long"></i>
+                </button>
+            <h2 class="authenticateBody__title">Tra cứu đơn hàng</h2>
+                <div class="authenticateform__group">
+                    <label class="authenticateform__group-label" for="code">Vui lòng nhập mã đơn hàng:</label><br>
+                    <div class="authenticateform__group-container">
+                        <input class="authenticateform__group-input" name="code" placeholder="Mã đơn hàng">
+                    </div>
+                </div>
+            <button class="authenticateform__group-btn btn_hover" type="submit">Xác nhận</button>
+        	</form>
+        <th:block th:if="${order!=null}">
+        <button style="position:unset;display:none; margin-bottom:24px;" type="button" onclick="window.history.back();" class="link_hover authenticateform__backward">
+            <i class="fa-solid fa-left-long"></i> Tra cứu tiếp
+        </button>
+               <div class="order__item" style="display:none;" th:each="item2 : ${order}" th:object="${item2}">
+                    <p class="order__item-status">
+                        <i class="fa-solid fa-truck-fast"></i> <span th:text="*{@textUtils.getDeliveryStatus(status)}"></span>
+                    </p>
+                    <div class="order__product-container" th:object="${item2.cartResponse}">
+                        <div class="order__product-img">
+                        <a th:href="@{'productdetail/' + *{productId}}">
+                            <img th:src="@{'/uploads/'+*{img}}" alt="" height="150" style="margin-right: 24px;">
+                        </a>
+                            <div style="align-self: flex-start;">
+                                <h3 class="order__product-title" th:text="*{name}"></h3>
+                                <span>
+                                    Phân loại hàng : <span th:text="@{*{color}+', '+*{size}}" ></span>
+                                </span>
+                                <br>
+                                 x<span th:text="*{quantity}"></span>
+                                <br>
+                                <small style="color: #5ADAC8; border: 1px solid #5ADAC8; padding: 2px;">Trả hàng miễn phí 15 ngày</small>
+                            </div>
+                        </div>
+                        <div style="display: flex;">
+                            <del style="margin-right: 12px;" >300.000đ</del>
+                            <span style="color: red; font-size: 1.3rem; font-weight: 500;" th:text="*{@textUtils.formatCurrency(price)}"></span>
+                        </div>
+                    </div>
+                    <div class="order__total" >
+                        <p style="line-height: 1.6rem;">
+                            <strong>Đặt hàng lúc:</strong> <span th:text="${#dates.format(item2.createdAt, 'hh:mm:ss dd/MM/yyyy')}"> </span> GTM +7
+                            <th:block th:if="${item2.status == 'DELIVERED'}">
+                                <br><Strong>Nhận hàng lúc:</Strong> <span th:text="${#dates.format(item2.deliveredAt, 'hh:mm:ss dd/MM/yyyy')}"> </span> GTM +7
+                             </th:block>
+                             <th:block th:if="${item2.status == 'CANCELLED'}">
+                                <br><Strong>Hủy đơn lúc:</Strong> <span th:text="${#dates.format(item2.deliveredAt, 'hh:mm:ss dd/MM/yyyy')}"> </span> GTM +7
+                            </th:block>	
+                            <br>
+                            <span th:object="${item2.addressResponse}">
+                                <strong>Người nhận: </strong>
+                                 <span th:text="*{receiver}">Receiver Name</span>
+							    (
+							    <span th:text="*{phone}">Receiver Phone</span>
+							    )
+							    <span th:text="*{detail}">Address Detail</span>,
+							    <span th:text="*{commune}">Commune</span>, 
+							    <span th:text="*{district}">District</span>, 
+							    <span th:text="*{province}">Province</span>
+                             </span> 
+                              <br>
+                             <strong>Mã đơn hàng: </strong><span class="codeOrder link_hover" th:text="*{code}"></span>
+                             <button class="copiCodeOrder link_hover" style="color:var(--primary);font-size:1.1rem; position:relative;" >Sao chép</button>
+                        </p>
+                        <span style="margin-right: 12px;"  >
+                            <strong>Thành tiền:</strong>
+                            <strong style="font-size: 1.6rem; color: red;" th:text="*{@textUtils.formatCurrency(cartResponse.total)}"> </strong>
+                        </span>
+                    </div>
+                   
+                </div>
+               </th:block>
+    </div>
+<script src="https://esgoo.net/scripts/jquery.js"></script>
+<script th:src="@{/js/modal-info.js}"></script>
+<script>
+    setTimeout(function(){
+        $(".authenticateform").css("display","flex")
+        $(".loading__group").remove()
+        $(".error").css("display","block")
+        $('.order__item').css("display",'block')
+        $('.authenticateform__backward').css("display",'block')
+    },1000)
+    $(".copiCodeOrder").click( function (e) {
+        var text = e.target.previousElementSibling.textContent;
+        var tempTextArea = document.createElement('textarea');
+        tempTextArea.value = text; 
+        document.body.appendChild(tempTextArea);
+        tempTextArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempTextArea);
+        var html='<p id="copy">Copied!</p>'
+        e.target.innerHTML+=html
+        e.target.lastChild.classList.add("copy__open")
+        setTimeout(function(){
+            e.target.lastChild.classList.remove("copy__open")
+            setTimeout(function(){
+                e.target.lastChild.remove()
+            },500)
+            
+        },1500)
+    })
+</script>  
+</body>
+
+</html>

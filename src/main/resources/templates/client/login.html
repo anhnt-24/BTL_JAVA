@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="main" >
+<body >
+    <div class="main__container" layout:fragment="content">
+		
+       <div style="display: flex; align-items: center; flex-direction: column;">
+       
+            <p th:if="${param.error}" class="error">Tài khoản hoặc mật khẩu sai, vui lòng nhập lại!</p>
+            
+	        <p th:if="${messageResponse != null && messageResponse.status == 'error'}" class="error" th:text="${messageResponse.message}"></p>
+	        <p th:if="${messageResponse != null && messageResponse.status == 'success'}" class="error" style=" background-color:#00800021; border:1px solid green;" th:text="${messageResponse.message}"></p>
+           <div id="login" class="login-register__active">
+               <a th:href="@{/register/view}" class="login_register-btn link_hover">
+                   Đăng kí
+               </a>
+               <form th:action="@{/client/login}" method="post" id="login__form" class="login__form">
+                   <h2 class="login__title" >Đăng nhập</h2>
+                   <div class="login__input-group">
+                        <label for="username">Tên đăng nhập:</label><br>
+                        <input name="username" class="login__input" type="text" id="username" placeholder="Tên đăng nhập" required>
+                    </div>
+                
+                    <div class="login__input-group">
+                        <label for="password">Mật khẩu:</label><br>
+                        <input name="password" class="login__input" type="password" id="password" placeholder="Mật khẩu" required>
+                        <span class="show_password show-btn"><i class="fas fa-eye"></i></span>
+                    </div>
+                   <div class="login__btn-container">
+                       <a class="link_hover"  style="color: var(--link-color);" th:href="@{/authenticate/forget/password}">Quên mật khẩu?</a>
+                       <input class="login__btn btn_hover" type="submit" value="Đăng nhập">
+                       
+                   </div>
+               </form>
+               <button onclick="navigateToURL('/oauth2/authorization/facebook')" class="login__fb btn_hover">
+                   <img src="/assets/facebook_logo.png" alt="">
+                   Đăng nhập bằng Facebook</button>
+               <button onclick="navigateToURL('/oauth2/authorization/google')" back class="login__google btn_hover">
+                   <img src="/assets/google_logo.png" alt="">
+                   Đăng nhập bằng Google
+               </button>
+           </div>
+	
+       </div>
+		
+		<script th:src="@{/js/validate.js}"></script>
+		<script th:inline="javascript">
+		    Validator({
+		        form:'#login__form',
+		        rules:[
+		            Validator.isRequired('#username'),
+		            Validator.isUsername('#username'),
+		            Validator.isRequired('#password'),
+		        ]
+		    })
+		   
+		</script>
+
+	
+    </div>
+    
+</body>
+
+</html>

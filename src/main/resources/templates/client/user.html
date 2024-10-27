@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="main">
+<body>
+    <div class="main__container" layout:fragment="content">
+        
+        <div id="user">
+            <h2 class="user__header">Hồ sơ của tôi</h2>
+            <p class="user__subheader">Quản lý thông tin hồ sơ để bảo mật tài khoản</p>
+            <form th:action="@{/my-info/update}" enctype="multipart/form-data" th:object="${user}" method="post" style="display: flex; justify-content: center;">
+
+                <div class="user__container" >
+                    <div class="user__form" >
+                        <div class="user__form-group">
+                            <label for="username"  class="user__label">Tên đăng nhập:</label>
+                            <input th:field="*{username}"  type="text" class="user__input" disabled>
+                        </div>
+                        
+                        <div class="user__form-group">
+                            <label for="name" class="user__label">Tên:</label>
+                            <input type="text" id="name" th:field="*{name}" class="user__input"  placeholder="">
+                        </div>
+                        
+                        <div class="user__form-group">
+                            <label for="email" class="user__label">Email:</label>
+                            <input type="email" id="email" th:field=*{email}  class="user__input"  disabled>
+                            <a th:href="@{/authenticate/send/change/email}" class="user__link link_hover">Thay đổi</a>
+                            
+                        </div>
+                        
+                        <div class="user__form-group">
+                            <label for="phone" class="user__label">Số điện thoại:</label>
+                            <input type="text" id="phone" th:field=*{phone}  class="user__input" disabled>
+                            <a th:href="@{/authenticate/send/change/phone}"  class="user__link link_hover">Thay đổi</a>
+                            
+                        </div>
+                        
+                        <div class="user__form-group">
+                            <label class="user__label">Giới tính:</label>
+                            <input type="radio"  id="male" th:field="*{gender}"  class="user__radio" value="MALE">
+                            <label for="male" class="user__label">Nam</label>
+                            <input type="radio" id="female" th:field="*{gender}" class="user__radio" value="FEMALE" >
+                            <label for="female" class="user__label">Nữ</label>
+                            <input type="radio" id="other" th:field="*{gender}" class="user__radio" value="OTHER">
+                            <label for="other" class="user__label">Khác</label>
+                        </div>
+                        
+                        <div class="user__form-group">
+                            <label for="dob" class="user__label">Ngày sinh:</label>
+                            <input type="date" id="dob" th:name="birth" th:value="*{birth}" class="user__input">
+                            
+                        </div>
+                        
+                        <button type="submit" class="user__button btn_hover"><i class="fa-regular fa-circle-check"></i> Xác nhận</button>
+                    </div>
+            	
+            		
+                    <div class="user__profile-picture">
+                        <img th:src="${UserAuth.img != '' &&  UserAuth.img != null } ? @{/uploads/{img}(img=${UserAuth.img})} : @{/assets/default_user-img.png}" alt="Profile Picture" class="user__image">
+                        <input type="file" class="user__input-file" name="file" id="file">
+              
+                        <label for="file"><i class="fa-solid fa-upload"></i> Tải tệp lên</label>
+                        <p class="user__file-info">Dung lượng file tối đa 1 MB<br>Định dạng:.JPEG, .PNG</p>
+                    </div>
+                    <input type="hidden" th:field="*{img}"/>
+                </div>
+            </form>
+		<script src="https://esgoo.net/scripts/jquery.js"></script>
+		<script>
+		    let gender = document.querySelector('input[value="[[${user.gender}]]"]')
+		    if(gender)
+		    	gender.checked=true
+		    
+		    var filelabletitlte=document.querySelector('label[for="file"]').innerHTML
+		    $('input[name="file"]').change((e)=>{
+		        $('label[for="file"]').html(e.target.value || filelabletitlte)  
+		    })
+		
+		</script>
+        </div>
+    </div>
+</body>
+</html>

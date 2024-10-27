@@ -1,0 +1,50 @@
+ <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"  layout:decorate="admin">
+ <th:block layout:fragment="content">
+  <div class="admin__body-container">
+                <div class="dashboard__item">
+                	<th:block th:each="item, i : ${titles}">
+                    <div  class="dashboard__item-body-group">
+                        <h2 class="dashboard__item-header" th:text="${item}"></h2>
+                        <div class="dashboard__item-body-group-container">
+                            <div class="dashboard__body-item" th:each="item2,j : ${data[i.index][0]}">
+                                <h3 class="dashboard__body-item-header">
+                                	<span th:text="${item2}"></span>
+                                    <a href="" class="link_hover">
+                                    
+                                        <i class="fa-regular fa-circle-question"></i>
+                                    </a>
+                                </h3>
+                                <p style="margin-top: 10px;">
+                                    <strong style="font-size: 1.8rem;" th:text="${@textUtils.formatCurrency2(data[i.index][1][j.index])}"></strong>
+                                    <span th:text="${data[i.index][2][j.index]}"></span>
+                                </p>
+                                <p th:if="${data[i.index][3][j.index] != '-0'}" style="margin-top: 20px; font-size: 1.1rem;">
+                                
+                                So với ngày hôm qua 
+                                		<i th:if="${data[i.index][3][j.index].substring(0,1) == '-'}" class="fa-solid fa-down-long" style="color: var(--primary-05);"></i>
+                                        <i th:if="${data[i.index][3][j.index].substring(0,1) != '-'}" class="fa-solid fa-up-long" style="color: var(--primary);"></i>
+                                    <span th:text="${data[i.index][3][j.index]}"> </span>
+                                </p>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+                    <div th:if="${i.index == 2}" class="dashboard__item-body-group dashboard__item-body-group-message" >
+                        <h2 class="dashboard__item-header">Thông báo</h2>
+                        <div class="dashboard__item-body-message-container">
+                            <div class="dashboard__item-body-message" th:each="mess:${messageDashboard}">
+                                <h3 th:text="${mess.title}">Tiêu đề</h3>
+                                <p th:text="${mess.content}"></p>
+                                <p th:text="${mess.createdAt}" class="dashboard__item-body-message-date"></p>
+                            </div>
+                        </div>
+                        
+                        
+                    </div>
+                    </th:block>
+                </div>
+
+    </div>
+</th:block>
+</html>

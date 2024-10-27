@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/base.css}">
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <link rel="stylesheet" th:href="@{/css/cart.css}">
+    <link rel="stylesheet" th:href="@{/css/login.css}">
+    <link rel="stylesheet" th:href="@{/css/order.css}">
+    <link rel="stylesheet" th:href="@{/css/payment.css}">
+    <link rel="stylesheet" th:href="@{/css/home.css}">
+    <link rel="stylesheet" th:href="@{/css/productdetail.css}">
+    <link rel="stylesheet" th:href="@{/css/shippingAddress.css}">
+    <link rel="stylesheet" th:href="@{/css/user.css}">
+    <link rel="stylesheet" th:href="@{/css/search.css}">
+    <link rel="stylesheet" th:href="@{/css/chatbot.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>Document</title>
+</head>
+<body>
+    <div id="header">
+        
+        <div class="header__container">
+            
+            <a href="#" class="header__icon">
+                Sopi          
+            </a>
+            <div class="header__center">
+                <ul class="header__buttons">
+                    <a th:href="@{/}" class="header__button">Trang chủ</a>
+                    <div class="header__product-container">
+                        <a class="header__button">
+                            Sản phẩm
+                        </a>
+                        <ul class="header__list-product">
+                            <a th:each="item: ${HeaderProductCategory}" class="header__list-product--item header__button" th:name="${item.id}" th:text="${item.name}"></a>
+          
+                            <div class="header__list-product--img">
+                                <img alt="" class="header__list-product--img-item" th:src="@{/uploads/{img}(img=${HeaderProductCategory[0].img})}">
+                                <span class="header__product--pic" th:text="${HeaderProductCategory[0].imgName}"></span>
+                            </div>
+                        </ul>
+                    </div>
+                    <a th:href="@{/lookup/product}" class="header__button">Tra cứu</a>
+                    <a href="" class="header__button">Về chúng tôi</a>
+                </ul>
+                <form class="header__search" method="GET" th:action="@{/search/product}">
+                    <input type="text" name="search" class="header__search--input" placeholder="Tìm kiếm">
+                    <div style="display:none;">
+                    <input type="text" name="page" value='0' class="header__search--input" >
+                    <input type="text" name="field"  class="header__search--input" >
+                    <input type="text" name="order" class="header__search--input" >
+                    </div>
+                    <button class="button__search btn_hover" type="submit">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </form>
+            </div>
+            <div class="header__right">
+                <ul class="header__buttons" style="justify-content: flex-end;">
+                    
+                    <th:block th:if="${UserAuth==null}">
+                        <a th:href="@{/login}" class="header__button">Đăng nhập</a>
+                        <a th:href="@{/register/view}" class="header__button"> Đăng kí </a>
+                    </th:block>
+                    <th:block th:if="${UserAuth!=null}">
+              
+                        <div class="header__user-container">
+                            <span style="text-align: center;" class="header__button header__user">
+                                <img style="width: 30px; 
+                                            height: 30px; 
+                                            object-fit:contain; 
+                                            border-radius: 50%; 
+                                            border: 1px solid gray;" th:src="${UserAuth.img != '' &&  UserAuth.img != null } ? @{/uploads/{img}(img=${UserAuth.img})} : @{/assets/default_user-img.png}"  alt=""> 
+                                <p style="margin-left: 6px; white-space: nowrap; 
+                                width: 120px; 
+                                overflow: hidden;
+                                text-overflow: ellipsis; 
+                                text-align: start; " th:text="${UserAuth.username}"></p> 
+                            </span>
+                            <div class="header__user-list">
+                            	<a th:if="${ROLE == 'ADMIN'}" th:href="@{/admin/dashboard}" class="header__user-item"><i class="fa-solid fa-user-tie"></i> Trang quản trị</a>
+                                <a th:href="@{/my-info}" class="header__user-item"><i class="fa-solid fa-user"></i> Tài khoản</a>
+                                <a th:href="@{/my-address}" class="header__user-item"><i class="fa-solid fa-location-dot"></i> Địa chỉ</a>
+                                <a th:href="@{/payment}" class="header__user-item"><i class="fa-solid fa-credit-card"></i> Thanh toán</a>
+                                <a th:href="@{/my-order}" class="header__user-item"><i class="fa-solid fa-box"></i> Đơn hàng</a>
+                                <a th:href="@{/authenticate/send/change/password}" class="header__user-item"><i class="fa-solid fa-key"></i> Đổi mật khẩu</a>
+                                <a class="header__user-item" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất</a>
+                                <form th:action="@{/client/logout}" method="POST" id="logout"></form>
+                            </div>
+
+                        </div>
+                        <a th:href="@{/my-cart}" class="header__button header Cart">
+                            <i class="fa-solid fa-cart-shopping" style="font-size: 1.3rem;"></i>
+                            Giỏ hàng
+                            <span th:if="${CartSize > 0}"  th:text="@{'('+${CartSize}+')'}"></span> 
+                            
+                        </a>
+                    </th:block>
+                    
+                </ul>
+            </div>
+        </div>
+    </div>
+     <div class="chatBot">
+        <header>
+            <h2>ChatBot</h2>
+            <span alt="Close"
+                  id="cross"
+                  onclick="cancel()">X</span>
+        </header>
+        <ul class="chatbox">
+            <li class="chat-incoming chat">
+                <p>Xin chào tôi có thể giúp gì cho bạn</p>
+            </li>
+        </ul>
+        <div class="chat-input">
+            <textarea rows="0" cols="17"
+                      placeholder="Nhập câu hỏi"></textarea>
+            <button id="sendBTN">Gửi</button>
+        </div>
+    </div>
+    <button class="toggleChatBot btn_hover"  onclick="openChatBot()">
+        <i class="fa-solid fa-comments"></i>
+    </button>
+
+    <script th:src="@{/js/chatbot.js}" defer></script>
+    
+    <th:block  layout:fragment="content"></th:block>
+    
+    
+    <div id="footer" xmlns:th="http://www.thymeleaf.org">
+        <div class=" row footer__container">
+            <div class="collumn-4">
+                <h2 class="footer__title">Hỗ trợ khách hàng</h2>
+                <ul class="footer__list">
+                    <li class="footer_policy_hover footer__list-hover">Hướng dẫn chọn size</li>
+                    <li class="footer_policy_hover footer__list-hover">Phương thức thanh toán</li>
+                    <li class="footer_policy_hover footer__list-hover">Chính sách vận chuyển</li>
+                    <li class="footer_policy_hover footer__list-hover">Chính sách bảo mật</li>
+                    <li class="footer_policy_hover footer__list-hover">Quy định đổi trả</li>
+                    <li class="footer_policy_hover footer__list-hover">Chính sách xử lý khiếu nại</li>
+                </ul>
+            </div>
+    
+            <div class=" collumn-4">
+                <h2 class="footer__title">Về chúng tôi</h2>
+                <ul class="footer__list">
+                    <p class="text_bolder">Công ty TNHH Sopi</p>
+                    <p><span class="text_bolder">
+                        Địa chỉ:
+                    </span> Học viện Công Nghệ Bưu chính viễn thông</p>
+                    <p><span class="text_bolder">
+                        Mã số doanh nghiệp: 
+                    </span>INT13162-20241-03</p>
+                    <p> <span class="text_bolder">
+                        Email:
+                    </span> Sopi@stu.ptit.edu.vn</p>
+                </ul>
+            </div>
+    
+            <div class=" collumn-4">
+                <h2 class="footer__title">Theo dõi chúng tôi trên</h2>
+                <ul class="footer__list">
+                    <li class="footer__list-hover"><i class="fa-brands fa-square-instagram"></i> Instagram</li>
+                    <li class="footer__list-hover"><i class="fa-brands fa-facebook"></i> Facebook</li>
+                    <li class="footer__list-hover"><i class="fa-brands fa-linkedin"></i> LinkedIn</li>
+                </ul>
+                <h2 class="footer__title">Phương thức thanh toán</h2>
+                <ul class="footer__payment-list">
+                    <li><img th:src="@{/assets/visa_logo.png}" alt="Visa logo" class="footer__payment"/></li>
+                    <li><img th:src="@{/assets/momo_logo.png}" alt="Momo logo"  class="footer__payment"/></li>
+                    <li><img th:src="@{/assets/applepay_logo.png}" alt="Momo logo"  class="footer__payment footer__fix-img"/></li>
+                    <li><img th:src="@{/assets/viettel_logo.png}" alt="Momo logo" class="footer__payment footer__fix-img"/></li>
+                </ul>
+            </div>
+
+            <div class=" collumn-4">
+                <h2 class="footer__title">Đối tác của chúng tôi</h2>
+                <p><img th:src="@{/assets/ptit_logo.png}" alt="PTIT logo" class="footer__cooperator" style="margin-left: 28px;" /></p>
+            </div>
+        </div>
+
+    </div>
+    
+    <script th:inline="javascript">
+        function logout(){
+            document.getElementById('logout').submit()
+        }
+        var generalCategory=/*[[${HeaderProductCategory}]]*/ []
+        var product={}
+  		for(let item of generalCategory){
+	        product[item.id]={
+	            url:`/uploads/${item.img}`,
+	            desc:`${item.imgName}`,
+	        }
+  		}
+  
+        var listHeaderProduct=document.querySelectorAll('.header__list-product--item')
+        console.log(listHeaderProduct)
+        for(let item of listHeaderProduct){
+            item.onmouseover=function(){
+                var product_img=document.querySelector(".header__list-product--img-item")
+                var product_desc=document.querySelector(".header__product--pic")
+                product_img.setAttribute("src",product[item.name].url)
+                product_desc.textContent=product[item.name].desc
+            }
+        }
+
+
+        
+
+    </script>
+    <script th:src="@{/js/showpassword.js}"></script>
+    <script src="https://esgoo.net/scripts/jquery.js"></script>
+	<script th:src="@{/js/modal-info.js}"></script>
+	<script th:inline="javascript"> 
+		var message=/*[[${message}]]*/ ""
+		var linkImgSuccess=/*[[@{"/assets/img/success.png"}]]*/ ""
+		if(message){
+			renderModalSuccess(linkImgSuccess,message)
+		}
+		var info=/*[[${info}]]*/ ""
+		if(info){
+			renderInforModal(info,false,0)
+		}
+		
+		function navigateToURL(url) {
+	        window.location.href = url;
+	    }
+	</script>
+		
+    
+</body>
+</html>

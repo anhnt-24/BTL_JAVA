@@ -1,0 +1,74 @@
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="main" >
+<th:block layout:fragment="content">
+    <div class="main__container">
+        <div id="search">
+            <h2 class="search__header">Kết quả tìm kiếm cho "<span th:text="${search}"></span>"</h2>
+            <th:block th:if="${product.content.size() != 0}">
+            <div class="search__btn-container">
+                <div class="search__btn-group">
+                    <p class="search__btn-container-title">Sắp xếp theo:</p>
+                    <a th:href="@{'?search='+${search}+ '&page=' +${product.getNumber()} + '&field=price&order=desc'}" name="price_desc" class="search__btn btn_hover">Giá giảm dần</a>
+                    <a th:href="@{'?search='+${search}+ '&page=' +${product.getNumber()} + '&field=price&order=asc'}"  name="price_asc" class="search__btn btn_hover">Giá tăng dần</a>
+                    <a th:href="@{'?search='+${search}+ '&page=' +${product.getNumber()} + '&field=createdAt&order=desc'}" name="createdAt_desc" class="search__btn btn_hover">Mới nhất</a>
+                    <a th:href="@{'?search='+${search}+ '&page=' +${product.getNumber()} + '&field=name&order=asc'}"  name="name_asc" class="search__btn btn_hover">Tên</a>
+                </div>
+                    
+                <div class="search__btn-group">
+                    <span style="color: var(--primary-05);" th:text="${product.getNumber()+1}"></span>/<span th:text="${product.getTotalPages()}"></span>
+                        <a th:if="${!product.first}" th:href="@{'?search='+${search}+ '&page=' +${product.getNumber()-1} + '&field='+${field}+'&order='+${order}}" class="search__btn btn_hover"><i class="fa-solid fa-chevron-left"></i></a>
+                    	<a th:if="${product.first}"  class="search__btn btn_disable "><i class="fa-solid fa-chevron-left"></i></a>
+                        <a th:if="${product.last}"  class="search__btn btn_disable "><i class="fa-solid fa-chevron-right"></i></a>
+                        <a th:if="${!product.last}" th:href="@{'?search='+${search}+ '&page=' +${product.getNumber()+1} + '&field='+${field}+'&order='+${order}}" class="search__btn btn_hover "><i class="fa-solid fa-chevron-right"></i></a>
+                </div>
+            </div>
+          <div class="home__product-container-2" >
+               <div class="home__products">
+                    <div class="home__product-item collumn-4" href="#" th:each="item: ${product.getContent()}" th:object="${item}">
+                        <span class="home__product-item-tag"><i class="fa-solid fa-check"></i> Yêu thích</span>
+                        <span class="home__product-item-tag-before"></span>
+                        <a th:href="@{'/productdetail/' + *{id}}" >
+                                <img class="home_product-pic" th:src="@{'/uploads/'+*{color[0].img}}" alt="Product Image">
+                        </a>
+                        <p class="home_product-header" th:text="*{name}"></p>
+                        <span class="home__product-item-ext"><i class="fa-solid fa-truck-fast"></i> Free ship extra</span>
+                        <div class="home__product-item-group">
+                             <p class="home__product-item-cost"> <del style="color: black; font-size: 1rem;">300.000đ</del> <span th:text="*{priceVnd}"></span> </p>
+                             <p style="font-size: 0.9rem;"  >
+								<span>Đã bán</span>
+                             	<span th:text="*{@textUtils.formatNumber(sold)}"></span>
+                             	
+                             </p>
+                        </div>
+                            <a th:href="@{'productdetail/'+*{id}}" class="home__product-item-detail btn_hover"><i class="fa-solid fa-circle-info"></i> Xem chi tiết</a>    
+                    </div>
+                      
+               </div>
+           </div>
+            <div class="search__btn-container search__btn-page">
+                <div class="search__btn-group">
+                        <a th:if="${product.first}"  class="search__btn btn_disable"><i class="fa-solid fa-chevron-left"></i></a>
+                        <a th:if="${!product.first}" th:href="@{'?search='+${search}+ '&page=' + '&field='+${field}+'&order='+${order}}" class="search__btn btn_hover"><i class="fa-solid fa-chevron-left"></i></a>
+                    <div >
+                            <a th:each="i : ${#numbers.sequence(1, product.getTotalPages())}" 
+                             th:href="@{'?search='+${search}+ '&page=' +${i-1} + '&field='+${field}+'&order='+${order}}" 
+                             class="search__btn btn_hover search__btn-page-item" th:classappend="${i == page+1} ? ' search__btn-page-item-active' : ''" th:text="${i}"></a>
+                    </div>
+                         <a th:if="${product.last}" class="search__btn btn_disable"><i class="fa-solid fa-chevron-right"></i></a>
+                        <a th:if="${!product.last}" th:href="@{'?search='+${search}+ '&page=' +${product.getNumber()+1} + '&field='+${field}+'&order='+${order}}" class="search__btn btn_hover "><i class="fa-solid fa-chevron-right"></i></a>
+                </div>
+            </div>
+            </th:block>
+                <p th:if="${product.content.size() == 0}" style="width: 100%;
+                    font-size: 1.3rem;
+                    text-align: center;
+                    margin-top: 33px;">
+                Không có sản phẩm nào tương tự.<p>
+	        </div>
+    </div>
+    <script th:inline="javascript">
+        var sort_btn_action=/*[[${field +'_'+order}]]*/ ""
+        document.querySelector(`.search__btn[name=${sort_btn_action}]`).classList.add("search__btn-active")
+    </script>
+
+</th:block>
+</html>

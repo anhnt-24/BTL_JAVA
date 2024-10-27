@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="main">
+<body>
+<th:block layout:fragment="content">
+<div class="main__container">
+	 <div id="payment">
+	       <form class="payment__form" method="POST" th:action="@{/my-order/create}">
+	           <div class="payment__form-address-border"></div>
+	                <div class="payment__form-address">
+	                    <h2 class="payment__header">
+	                        <i class="fa-solid fa-location-dot"></i>
+	                        Địa Chỉ Nhận Hàng 
+	                    </h2>
+	                        <div th:if="${session.address != null}" class="payment__form-address-group" th:object="${session.address}">
+	                            <span class="payment__form-address-default">
+	                                <strong style="margin-right: 12px;" th:text="@{*{receiver} +' ('+ *{phone} +')' }" ></strong>
+	                                <span th:text="@{*{detail} +', '+ *{commune} +', ' + *{district} +', '+*{province}   }"></span>
+	                                
+	                            </span> 
+	                            <button class="payment__form-address-button link_hover" onclick="openModal()" type="button"> Thay đổi</button>
+	                        </div>
+	                        <input type="hidden" name="addressDefault" value="{{payment.addressDefault.id}}">
+	                        
+	                    
+	                        <p th:if="${session.address == null}" style="font-size: 1.2rem; width: 100%; text-align: center; margin-top:12px">Bạn chưa có địa chỉ nhận hàng, vui lòng 
+	                            <a th:href="@{/my-address}" class="link_hover" style="color: var(--link-color);"> bấm vào đây</a> 
+	                        để thêm địa chỉ mới.</p>
+	                </div>
+	            <!-- //Address -->
+	            <!-- OrderStatus -->
+	        <div class="payment__form-container">
+	            <h2 class="payment__header">Đơn Hàng</h2>
+	            <div class="payment__form-order">
+	                    <div th:each="item : ${session.payment.list}" class="payment__order-summary" th:object="${item}">
+	                        <div style="display:flex;align-items:center;">
+	                            <img th:src="@{'/uploads/' +*{img}}" alt="Product Image" class="payment__image" style="margin-right: 48px;"><br>
+	                            <div> 
+	                                <p class="payment__product-info">
+	                                <span class="payment__product-info-title"> <strong >Sản phẩm: </strong> <span th:text="*{name}"></span> </span>
+	                                <strong>Màu: </strong><span th:text="*{color}"></span><br>
+	                                <strong>Kích cỡ: </strong><span th:text="*{size}"></span><br>
+	                                <strong>Đơn giá: </strong><span th:text="*{@textUtils.formatCurrency(price)}"></span><br>
+	                                <strong>Số lượng: </strong><span th:text="*{quantity}"></span></span>
+	                            </div>
+	                        </div>
+	                        <div class="payment__price-container">
+	                            <p class="payment__price"><strong style="color: var(--font-1);">Tổng:</strong> <span th:text="*{@textUtils.formatCurrency(total)}"></span></p>
+	                        </div>
+	                    </div>
+	                <div  class="payment__discount">
+	                    <div>
+	                        <label for="discount_code" class="payment__label">Mã Phiếu Giảm Giá:</label><br>
+	                        <input type="text" id="discount" name="discount" class="payment__input" placeholder="Mã phiếu giảm giá"><br>
+	                    </div>
+	                        <p th:if="${session.discount != 0}" class="payment__discount-code">
+	                            <a th:href="@{/payment/discount/remove}"><i class="fa-solid fa-x"></i></a>
+	                            Mã <span th:text="${session.code}"></span> giảm <span th:text="${@textUtils.formatCurrency(session.discount)}"></span> 
+	                        </p>
+	                    <button type="button" onclick="getDiscoutInput()" class="payment__button payment__button-discount btn_hover">Áp Dụng</button><br><br>
+                	</div>
+	                <div class="payment__summary-container">
+	                    <p class="payment__summary">
+	                        <span>Tạm tính: </span>
+	                        <strong th:text="${@textUtils.formatCurrency(session.payment.preTotal)}" ></strong>
+	                    </p>
+	                    <p class="payment__summary">
+	                        <span>Phí vận chuyển: </span>
+	                        <strong th:text="${@textUtils.formatCurrency(session.payment.deliveryFee)}" ></strong>
+	                    </p>
+	                    <p class="payment__summary">
+	                        <span>Mã giảm giá: </span>
+	                        <strong th:text="${'-'+@textUtils.formatCurrency(session.discount)}"></strong>
+	                    </p>
+	                </div>
+	                <h3 class="payment__total" >Tổng thanh toán: <span style="color:red;" th:text="${@textUtils.formatCurrency(session.payment.total)}"></span> </h3>
+	                <input style="display: none;" type="text" name="total" value="0" >
+	            </div>
+	        </div>
+	        <div class="payment__form-container">
+	            <h2 class="payment__header">Phương Thức Thanh Toán</h2>
+	             <div class="payment__form-method">
+	                <div class="payment__form-method-container">
+	                   <label for="payment_method" class="payment__label">Vui lòng chọn phương thức thanh toán:</label><br>
+	                   <div class="payment__form-group">
+	                       <input type="radio" id="momo" name="payment_method" class="payment__radio" value="momo">
+	                        <label for="momo" class="payment__label">Thanh toán bằng Momo</label><br>
+	                   </div>
+	                   <div class="payment__form-group">
+	                       <input type="radio" id="visa" name="payment_method" class="payment__radio" value="visa" >
+	                       <label for="visa" class="payment__label">Thanh toán bằng thẻ Visa</label><br>
+	                   </div>
+	                    <div class="payment__form-group">
+	                        <input type="radio" id="cod" name="payment_method" class="payment__radio" value="cod">
+	                        <label for="cod" class="payment__label">Thanh toán khi nhận hàng (COD)</label><br><br>
+	                    </div>
+	                </div>
+	                 <button type="submit" class="payment__button btn_hover">Xác Nhận</button>
+	             </div>
+	        </div>
+	      </form>
+	 </div>
+	<div class="modal">
+		<form class="payment__modal-form-change-addr" th:action="@{/payment/changeAddress}" method="post">
+		    <h3 class="payment__modal-form-header">Địa Chỉ Của Tôi</h3>
+		    <div style="max-height: 380px; overflow-y: scroll; border-bottom: 1px solid #cccccc;">
+		            <div th:each="item : ${allAddress}" class="payment__modal-form-group" th:object="${item}" >
+		            	<input th:if="${session.address.id == item.id}" class="payment__modal-form-radio " type="radio" name="address" th:value="*{id}" checked>
+		                <input th:if="${session.address.id != item.id}"  class="payment__modal-form-radio " type="radio" name="address" th:value="*{id}">
+		                <div>
+		                    <label for="address1">
+		                        <strong th:text="*{receiver}"></strong> <span th:text="@{ '+84' + *{phone}}"> </span>
+		                        <span th:if="*{isdefault}"  style="color: red; border: 1px solid red; padding: 1px;">Mặc định</span><br>
+		                        <span th:text="*{detail}"> </span><br>
+		                         <span th:text="@{*{commune} +', ' + *{district} +', '+*{province}}"></span><br>
+		                        
+		                    </label>
+		                </div>
+		            </div>
+		    </div>
+		    
+		
+		    <div class="payment__modal-form-group" style="float: right;margin-top: 100px;">
+		        <button class="payment__modal-form-btn payment__form-modal-cancel btn_hover" type="button" onclick="closeModal()">Hủy</button>
+		        <button class="payment__modal-form-btn btn_hover" type="submit" >Xác nhận</button>
+		    </div>
+		</form>
+	</div>
+<form style="display:none;" class="applyDiscount" method="POST" th:action="@{/payment/discount/apply}"> 
+    <input name="discount" type="text">
+</form>
+</div>
+<script src="https://esgoo.net/scripts/jquery.js"></script>
+<script th:src="@{/js/modal-info.js}"></script>
+<script th:inline="javascript">
+		function getDiscoutInput(){
+		    $(".applyDiscount").children("input[name='discount']").val($("#discount").val())
+		    $(".applyDiscount").submit()
+		}  
+			
+        $('.payment__form').submit(function(e){
+            if($('input[name="addressDefault"]').length===0){
+                renderInforModal('Vui lòng bổ sung địa chỉ trước khi đặt hàng.',false,'')
+                e.preventDefault()  
+            }else
+            if($('input[name="payment_method"]:checked').length===0){
+                renderInforModal('Vui lòng chọn phương thức thanh toán.',false,'')
+                e.preventDefault()  
+            }
+
+        })
+        
+	
+	    function openModal(){
+	        $('.modal').css('display','flex')
+	    }
+	    function closeModal(){
+	        $('.modal').css('display','none')
+	    }
+</script>
+</th:block>
+</html>

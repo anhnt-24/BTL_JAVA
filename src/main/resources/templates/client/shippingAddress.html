@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="main">
+<body>
+<th:block layout:fragment="content">
+    <div class="main__container">
+    <div id="address">
+        
+        <div class="address_group">
+            <h2 class="address__header">Địa chỉ của tôi</h2>
+            <button class="address__add-new btn_hover btn_hover" onclick="openModal('/my-address/create')" ><i class="fa-solid fa-plus"></i> Thêm địa chỉ mới</button>
+        </div>
+        
+        
+        <p th:if="${#lists.size(address) == 0}" style="font-size:1.2rem; width:100%; text-align:center;margin-top:48px">Bạn chưa có địa chỉ nào! <button class='link_hover' style="font-size:1.2rem; color:var(--link-color);" onclick="openModal('/my-address/create')" > Nhấn vào đây để thêm địa chỉ mới</button></p>
+        <div th:if="${#lists.size(address) > 0}" class="address__container" >
+                <div th:each="item : ${address}"  class="address_group address-item">
+                    <div th:object="${item}">
+                        <p><strong style="font-size:1.2rem" th:text="*{receiver}"></strong> <th:block th:text="@{'(+84) '+*{phone}}"> </th:block> 
+                        <span style="border: 1px solid red; color: red; padding: 2px; margin-left:10px;" th:if="*{isdefault}" >Mặc định</span></p>
+                        <p th:text="*{detail}"></p>
+                        <p th:text="@{*{commune}+', '+*{district}+', '+*{province}}"></p>
+                    </div>
+                    <div th:object="${item}">
+                        <div>
+                           <button th:attr="onclick=${'PostToURL(''' +'/my-address/delete/' +item.id + ''')'} " class="address__btn-action link_hover" th:if="*{not isdefault}" >Xóa</button>
+                           
+                            <button style="cursor:pointer;" class="address__btn-action link_hover" th:attr="onclick=${'updateModal('''+'/my-address/update/'+ item.id + ''',''' +item.id_province + ''',''' + item.id_district + ''',''' +  item.id_commune + ''','''+ item.receiver+ ''',''' + item.phone + ''',''' +item.detail +  ''')'}" >Cập nhật</button>
+                        </div>
+                        <button th:if="*{not isdefault}" class="address__btn-setdefault btn_hover" 
+                        th:attr="onclick=${'PostToURL(''' +'/my-address/setdefault/' +item.id + ''')'}" >
+                        Thiết lập mặc định</button>
+                        <button th:if="*{isdefault}" class="address__btn-setdefault"  disabled>
+                        Thiết lập mặc định</button>
+                    </div>
+                </div>
+        </div>
+    </div>
+</div>    
+<div class="modal">
+<form  method="post" class="address__form-add" th:object="${addressRequest}" th:action="@{/}">
+    <h3 class="address__form-add-header">Địa chỉ mới</h3>
+    <div>
+        <div class="address__form-add-group">
+            <label for="name">Họ và tên</label> <br>
+            <input id="receiver" class="address__form-add-input" type="text"  th:field="*{receiver}" placeholder="Họ và tên" required>
+        </div>
+        <div class="address__form-add-group">
+            <label for="name">Số điện thoại</label><br>
+            <input id="phone" class="address__form-add-input" type="text" th:field="*{phone}"  placeholder="Số điện thoại" required>
+        </div >
+        <div class="address__form-add-group">
+            <label for="city" class="">Tỉnh/Thành Phố</label><br>
+            <select class="address__form-add-input" id="tinh" data-content="Tỉnh/Thành Phố" data-stand="province" th:field="*{id_province}" title="Chọn Tỉnh Thành" >
+                <option value="0" >Tỉnh Thành</option>
+            </select> 
+        </div>
+        
+        <div class="address__form-add-group">
+            <label for="district" class="">Quận/Huyện</label><br>
+            <select class="address__form-add-input"  id="quan"  data-content="Quận/Huyện" data-stand="district" th:field="*{id_district}" title="Chọn Quận Huyện">
+                <option value="0">Quận Huyện</option>
+            </select> 
+        </div>
+        
+        <div class="address__form-add-group">
+            <label for="ward" class="">Phường/Xã</label><br>
+            <select class="address__form-add-input"  id="phuong" data-content="Phường/Xã" data-stand="commune" th:field="*{id_commune}" title="Chọn Phường Xã">
+                <option value="0">Phường Xã</option>
+            </select>
+        </div>
+        <div class="address__form-add-group">
+            <label for="">Địa chỉ cụ thể</label><br>
+            <input id="detail" class="address__form-add-input" type="text" th:field="*{detail}" placeholder="Địa chỉ" required>
+        </div>
+    </div>
+    <div style="display:none;">
+        <input type="text" th:field="*{province}">
+        <input type="text" th:field="*{district}">
+        <input type="text" th:field="*{commune}">
+    </div>
+    <div style="float: right;margin-top: 24px;">
+        <button class="address__form-add-btn address__form-add-cancel btn_hover" type="button" onclick="closeModal()" >Hủy bỏ</button>
+        <button class="address__form-add-btn btn_hover" type="submit">Hoàn thành</button>
+    </div>
+</form>
+
+
+</div>
+<form method="post" id="actionAddress" th:action="@{/}">
+</form>
+<script th:src="@{/js/validate.js}"></script>
+<script>
+    Validator({
+           form:'.address__form-add',
+           rules:[
+                Validator.isRequired('#receiver'),
+                Validator.isRequired('#phone'),
+                Validator.isPhone('#phone'),
+                Validator.isRequired('#detail'),
+               Validator.isSelected('#tinh'),
+               Validator.isSelected('#quan'),
+               Validator.isSelected('#phuong'),
+           ]
+
+       })
+</script>
+<script src="https://esgoo.net/scripts/jquery.js"></script> 
+<script th:inline="javascript">
+    // SELECT 
+    $(document).ready(function() {
+    	
+        //Lấy tỉnh thành
+        $.getJSON('https://esgoo.net/api-tinhthanh/1/0.htm',function(data_tinh){	       
+            if(data_tinh.error==0){
+               $.each(data_tinh.data, function (key_tinh,val_tinh) {
+                  $("#tinh").append('<option value="'+val_tinh.id+'">'+val_tinh.full_name+'</option>');
+               });
+               $("#tinh").change(function(e){
+                    $('input[name="detail"]').val('')
+                    var idtinh=$(this).val();
+                    //Lấy quận huyện
+                    $.getJSON('https://esgoo.net/api-tinhthanh/2/'+idtinh+'.htm',function(data_quan){	       
+                        if(data_quan.error==0){
+                           $("#quan").html('<option value="0">Quận Huyện</option>');  
+                           $("#phuong").html('<option value="0">Phường Xã</option>');   
+                           $.each(data_quan.data, function (key_quan,val_quan) {
+                              $("#quan").append('<option value="'+val_quan.id+'">'+val_quan.full_name+'</option>');
+
+                           });
+                           //Lấy phường xã  
+                           $("#quan").change(function(e){
+                              $('input[name="detail"]').val('')
+                                console.log('cc')
+                                var idquan=$(this).val();
+                                $.getJSON('https://esgoo.net/api-tinhthanh/3/'+idquan+'.htm',function(data_phuong){	       
+                                    if(data_phuong.error==0){
+                                       $("#phuong").html('<option value="0">Phường Xã</option>');   
+                                       $.each(data_phuong.data, function (key_phuong,val_phuong) {
+                                          $("#phuong").append('<option value="'+val_phuong.id+'">'+val_phuong.full_name+'</option>');
+                                       });
+                                    }
+                                });
+                           });
+                        
+                        }
+
+                    });
+                    $("#phuong").change(function(){
+                        $('input[name="detail"]').val('')
+                    })
+
+               });   
+                
+            }
+        });
+        
+        
+
+    });
+    
+    function openModal(url){
+        $('.address__form-add').attr('action',`${url}`)
+        $('.modal').css('display','flex')
+    }
+
+    function closeModal(){
+        $('.modal').css('display','none')
+        $('.modal').find('input[type!="hidden"]').val('')
+        $("#quan").html('<option value="0">Quận Huyện</option>');  
+        $("#phuong").html('<option value="0">Phường Xã</option>');   
+        $('.modal').find('select').val('0')
+    }
+     
+    
+   
+
+   
+        $('.address__form-add').on('submit', function(e) {
+            $('select').each(function() {
+                	let str=this.getAttribute("data-stand")
+                	let val=this.options[this.selectedIndex].innerText
+                    $(`input[name=${str}]`).attr('value',`${val}`)
+                    
+            });
+        });
+
+        function PostToURL(url) {
+            $('#actionAddress').attr('action',url)
+            $('#actionAddress').submit()
+        }
+	 function updateModal(urlupdate,id_province,id_district,id_commune,receiver,phone,detail){     
+         $.getJSON(`https://esgoo.net/api-tinhthanh/2/${id_province}.htm`,function(data_quan){	       
+             if(data_quan.error==0){
+                 $("#quan").html('<option value="0">Quận Huyện</option>');  
+                 $("#phuong").html('<option value="0">Phường Xã</option>');   
+                     $.each(data_quan.data, function (key_quan,val_quan) {
+                         $("#quan").append('<option value="'+val_quan.id+'">'+val_quan.full_name+'</option>');
+                     });
+                     
+                 $.getJSON(`https://esgoo.net/api-tinhthanh/3/${id_district}.htm`,function(data_phuong){	       
+                     if(data_phuong.error==0){
+                         $("#phuong").html('<option value="0">Phường Xã</option>');   
+                         $.each(data_phuong.data, function (key_phuong,val_phuong) {
+                             $("#phuong").append('<option value="'+val_phuong.id+'">'+val_phuong.full_name+'</option>');
+                         });
+                     }
+                     $('[name="id_province"]').val(`${id_province}`);
+                     $('[name="id_district"]').val(`${id_district}`);
+                     $('[name="id_commune"]').val(`${id_commune}`);
+                     $('[name="receiver"]').val(`${receiver}`);
+                     $('[name="phone"]').val(`${phone}`);
+                     $('[name="detail"]').val(`${detail}`);
+                     $('.address__form-add').attr('action',`${urlupdate}`)
+                     $('.modal').css('display','flex') 
+                 });    
+             }
+         })
+         
+           
+         $("#quan").change(function(e){
+             $('input[name="detail"]').val('')
+             var idquan=$(this).val();
+             $.getJSON('https://esgoo.net/api-tinhthanh/3/'+idquan+'.htm',function(data_phuong){	       
+                 if(data_phuong.error==0){
+                     $("#phuong").html('<option value="0">Phường Xã</option>');   
+                     $.each(data_phuong.data, function (key_phuong,val_phuong) {
+                         $("#phuong").append('<option value="'+val_phuong.id+'">'+val_phuong.full_name+'</option>');
+                     });
+                 }
+             });
+         });
+         $("#phuong").change(function(){
+             $('input[name="detail"]').val('')
+         })
+     }
+   
+
+        
+        
+
+
+
+
+ </script>
+</th:block>
+</body>
+
+</html>

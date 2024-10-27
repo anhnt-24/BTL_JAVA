@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="main">
+<body>
+<th:block layout:fragment="content">
+<div class="main__container">
+    <div id="cart">
+        <h2 class="cart__title"> Giỏ hàng của tôi</h2>
+
+        <form th:if="${ #lists.size(cart) > 0}" class="cartcontainer" method="post" th:action="@{/}">
+            <div class="cart__header">
+                 <h4 class="cart__item-name">Sản phẩm</h4>
+                 <h4 class="cart__item-category">Phân loại</h4>
+                 <h4 class="cart__item-price">Đơn giá</h4>
+                 <h4 class="cart__item-quantity">Số lượng</h4>
+                 <h4 class="cart__item-total">Số tiền</h4>
+                 <h4 class="cart__item-action">Thao tác</h4>
+             </div>
+                 <div class="cart__item" th:each="item: ${cart}" th:object="${item}">
+                     <div class="cart__item-group cart__item-name">
+                         <input type="checkbox" style="margin-right: 12px;" class="cart__checkbox" th:name="cartItem[]" th:value="*{id}">
+                         <a th:href="@{'productdetail/' + *{productId}}">
+                             <img th:src="@{'/uploads/'+*{img}}" alt="" height="100" style="margin-right: 12px;">
+
+                         </a>
+                         <p>
+                             <span th:text="*{name}" class="cart__item-titlte">
+                                 
+                             </span> 
+                             <span style="color: #5ADAC8; border: 1px solid #5ADAC8; padding: 2px; font-size: 0.8rem;">Miễn phí đổi trả trong 15 ngày</span>
+                         </p>
+                         
+                     </div>
+                     <div class="cart__item-group cart__item-category">
+                         <p>Màu: <span th:text="*{color}"> </span> <br> Size: <span th:text="*{size}"></span> </p>
+                     </div>
+                     <div class="cart__item-group cart__item-price">
+                         <del style="margin-right: 12px; font-size: 1rem;"> 
+                             300.000đ
+                             
+                         </del>
+                         <span style="color: red; font-size: 1.2rem;font-weight: 500;" th:text="*{@textUtils.formatCurrency(price)}"  th:data-value="*{price}"> </span>
+                     </div>
+                     <div class="cart__item-group cart__item-quantity">
+                         <button class="cart__item-quantity-minus" type="button" >-</button>
+                         <input type="text" name="quantity[]" class="cart__item-quantity-input" th:data-id="*{id}" th:value="*{quantity}"  >
+                         <button class="cart__item-quantity-plus" type="button">+</button>
+                     </div>
+                     <p class="cart__item-total" th:text="*{@textUtils.formatCurrency(total)}"></p>
+                     <button  th:attr="onclick=${'setCartAction(''' +'/my-cart/delete/' + item.id +''')'}"  type="button" class="cart__item-group cart__item-action link_hover" style="font-size: 1.2rem; color: var(--link-color);">Xóa</button>
+                 </div>
+             
+             <div class="cart__to-order">
+                 <div class="cart__to-order-group">
+                     <input type="checkbox" class="cart__checkall" style="transform: scale(1.2);">
+                     <label for="">Chọn tất cả</label>
+                     <button onclick="setCartFormAction('/my-cart/delete/multi')"  type="submit" style="margin-left: 32px;" class="link_hover cart__delete-options">Xóa</button>
+                 </div>
+                 <div class="cart__to-order-group">
+                     <label for="">Tổng thanh toán:</label>
+                     <strong class="cart__selected-total" style="color: red; margin-right: 100px; font-size: 1.4rem; font-weight: 600;">0đ</strong>
+                     <input name="total" type="hidden">
+                     <button onclick="setCartFormAction('/payment/processMulti')" type="submit" class="cart__to-order-submit btn_hover"> Mua Hàng</button>
+ 
+                 </div>
+             </div>
+            
+ 
+ 
+             <!--  -->
+        </form>
+        <p th:if="${ #lists.size(cart) <= 0}" style="width: 100%; text-align: center; font-size: 1.3rem; margin-top: 24px;">Bạn chưa có sản phẩm nào! <a class="link_hover" th:href="@{/}" style="color: var(--link-color);">Mua sắm ngay</a></p>
+    </div>
+</div> 
+<form id="cartAction" method="post" th:action="@{/}"></form>
+<script src="https://esgoo.net/scripts/jquery.js"></script>
+
+<script th:src="@{/js/modal-info.js}"></script>
+<script th:inline="javascript">
+	function setCartAction(url){
+		$('#cartAction').attr('action',url)
+		$('#cartAction').submit();
+		
+	}
+    function setSelectedCartTotal(){
+        var sum=0
+        $.each($('.cart__item'),function(i,x){
+            if(x.querySelector("input[type='checkbox']:checked")){
+                sum+=eliminateNonDigits(x.querySelector(".cart__item-total").innerText)
+            }
+        })
+        $('input[name="total"]').val(sum)
+        $('.cart__selected-total').text(formatCurrency(sum))
+
+
+    }
+    function setCartFormAction(url){
+        $('.cartcontainer').attr('action',url)
+    }
+    
+
+    function eliminateNonDigits(input) {
+        return Number(input.replace(/\D/g, ''));
+    }
+    
+    function formatCurrency(amount, currencySymbol = 'đ') {
+        const numStr = amount.toString();
+        const formattedInteger = numStr.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        return `${formattedInteger}${currencySymbol}`;
+    }
+
+    function sendRequest(input,total,price){
+        let id=input.getAttribute('data-id')
+        let quantity=input.value
+        fetch(`my-cart/quantity/${id}/${quantity}`,{
+        	method:"post"
+        })
+            .then((data)=>{
+
+            })
+            .catch(error=>{
+
+            })
+        total.innerText=formatCurrency(price*quantity)
+
+
+        
+    }
+    var checkbox=$('.cart__checkbox')
+    $('.cart__checkall').change(function(){
+        var _this=this
+        $.each(checkbox,function(i,x){
+            x.checked=_this.checked
+        })
+        setSelectedCartTotal()
+
+    })
+    var checkall=$('.cart__checkall')[0]
+    $.each(checkbox,function(i,x){
+        x.onchange=function(){
+            var check=$('.cart__checkbox:checked').length===checkbox.length
+            checkall.checked=check
+            setSelectedCartTotal()
+        }
+    })
+                   
+
+   
+
+    var cart__item=$('.cart__item')
+    
+    $.each(cart__item,function(i,x){
+        let minus=x.querySelector('.cart__item-quantity-minus')
+        let plus=x.querySelector('.cart__item-quantity-plus')
+        let quantity=x.querySelector('.cart__item-quantity-input')
+        console.log(quantity)    	
+        let total=x.querySelector('.cart__item-total')
+        let price=x.querySelector('span[data-value]').getAttribute('data-value')
+        if(quantity){
+            quantity.onblur=function(){
+                if(!this.value || this.value<1){
+                    this.value=1
+                }
+                sendRequest(quantity,total,price)
+                setSelectedCartTotal() 
+            }
+            quantity.onkeydown=function(e){
+                if(e.keyCode===13){
+                    e.preventDefault()
+                    e.target.blur()
+
+                }
+            }
+        }
+
+        if(minus){
+
+                minus.onclick=function(){
+                if(quantity.value>1){
+                    quantity.value--
+                    sendRequest(quantity,total,price)
+                    setSelectedCartTotal()  
+                }
+            }
+        }
+        if(plus){
+                plus.onclick=function(){
+                    quantity.value++
+                    sendRequest(quantity,total,price)
+                    setSelectedCartTotal()
+                }
+        }
+        
+    })
+    function cartSubmitChoices(e){
+	    if( $('.cart__checkbox:checked').length===0){
+	            renderInforModal('Chưa có sản phẩm nào được chọn.',false,'')
+	            e.preventDefault()   
+	            return false
+	    }
+	    return true
+    }
+    $('.cart__to-order-submit').click(cartSubmitChoices)
+    </script>
+
+	<script>
+    $('.cart__delete-options').click(function(e){
+    	if(cartSubmitChoices(e)){
+    		e.preventDefault()
+    		var a=function(){
+    			$('.cartcontainer').submit()
+ 
+    		}
+    		renderInforModal('Bạn chắc chắn chứ?',true,a)
+    	}
+    })
+    
+</script>
+
+</th:block>
+    
+</body>
+
+
+</html>

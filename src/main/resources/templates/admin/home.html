@@ -1,0 +1,99 @@
+ <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"  layout:decorate="admin">
+ <th:block layout:fragment="content">
+ 
+ <div th:if="${activeTitle == 'product'}" class="admin__btn-group">
+     <p class="admin__btn-group-title">Thao tác:</p>
+     <a href="/admin/product/update/sold" class="admin__btn-group-action btn_hover" onclick="loading()"> Cập nhật</a>
+</div>
+<div th:if="${activeTitle == 'discount'}" class="admin__btn-group">
+     <p class="admin__btn-group-title">Thao tác:</p>
+     <button class="admin__btn-group-action btn_hover" onclick="openModal()"> Thêm mới</button>
+</div>
+<th:block th:if="${data.getTotalElements() != 0}">
+ <table class="admin__table">
+       <tr>
+           <th th:each="item, i : ${fields}" >
+            <span th:text="${titles[i.index]}"></span>
+            	<th:block th:if="${item != 'action'}">
+            	
+	                 <a  th:if="${item != field } " th:href="@{'?page=' +${page} + '&field=' + ${item} + '&order=asc'}" class="link_hover">
+	                     <i class="fa-solid fa-sort"></i>
+	               </a>
+	               <a th:if="${ item == field && order == 'asc' } " th:href="@{'?page=' +${page} + '&field=' + ${item} + '&order=desc'}" class="link_hover">
+	                     <i class="fa-solid fa-sort-up"></i>
+	               </a>
+	               <a th:if="${ item == field && order == 'desc' } " th:href="@{'?page=' +${page} + '&field=' + ${item} + '&order=asc'}" class="link_hover">
+	                     <i class="fa-solid fa-sort-down"></i>
+	               </a>
+            	</th:block>
+           </th>
+       </tr>
+       <tr th:each="item :${data.getContent()}">
+           <td th:each="item2, i: ${item}">
+            	<span th:if="${ !(fields[i.index] == 'status' || fields[i.index] == 'action') }"  th:text="${item2}"></span>
+           		<th:block th:if="${fields[i.index] == 'status' }">
+           			<button th:attr="onclick=${'updateStatus('+'''Bạn muốn đơn này được xác nhận chứ?''' +',' +'''/admin/orderitem/update/' + item[0] +'/PROCESSING'+''')'}" th:if="${item2== 'PENDING' }" style="background-color:var(--primary);" class="admin__table-btn btn_hover" >PENDING</button>
+           			<button th:attr="onclick=${'updateStatus('+'''Đơn này đã chuẩn bị được giao?''' +',' +'''/admin/orderitem/update/' + item[0] +'/ONDELIVERY'+''')'}" th:if="${item2 == 'PROCESSING' }" style="background-color:orange;" class="admin__table-btn btn_hover" >PROCESSING</button>
+           			<button th:if="${item2 == 'ONDELIVERY' }" style="background-color:BLUE;" class="admin__table-btn" >ONDELIVERY</button>
+           			<button th:if="${item2 == 'DELIVERED' }" class="admin__table-btn" >DELIVERED</button>
+           			<button th:if="${item2 == 'CANCELLED' }" style="background-color:RED;" class="admin__table-btn" >CANCELLED</button>
+           		</th:block>
+           		
+           			<button th:if="${fields[i.index] == 'action' }" style="background-color:RED;" class="admin__table-btn btn_hover"  th:attr="onclick=${'setFormAction(''' +item2+ ''')' }">Xóa</button>
+           		
+           </td>
+           
+       </tr>
+   </table>
+   <div class="admin__body-btn-container" >
+                <a th:if="${!data.first}" class="admin__body-btn btn_hover" href="">
+                    <i class="fa-solid fa-angle-left"></i>
+                </a>
+                
+                <a th:if="${data.first}" class="admin__body-btn btn_disable">
+                    <i class="fa-solid fa-angle-left"></i>
+                </a>
+                <div class="admin__body-btn-page-container">
+                	<a th:if="${page - 5 > 1}" th:href="@{'?page=0&field='+${field}+'&order='+${order}}"
+                	 class="admin__body-btn admin__body-btn-page btn_hover" >1</a>
+                	<a th:if="${page - 5 > 1}" class="admin__body-btn admin__body-btn-page" >...</a>
+                    <a th:each="i : ${#numbers.sequence(page - 5 > 1 ? page - 5 : 1, page + 5 <= data.getTotalPages() ? page + 5 : data.getTotalPages())}"
+                    th:href="@{'?page=' +${i-1} + '&field='+${field}+'&order='+${order}}" 
+                    class="admin__body-btn admin__body-btn-page btn_hover" 
+                    th:classappend="${i == page+1} ? ' admin__body-btn-page-active' : ''"  th:text="${i}"></a>
+                  	<a th:if="${page + 5 < data.getTotalPages() }" class="admin__body-btn admin__body-btn-page" >...</a>
+                </div>
+                <a th:if="${!data.last}" class="admin__body-btn btn_hover" href="">
+                    <i class="fa-solid fa-angle-right"></i>
+                </a>
+                <a th:if="${data.last}" class="admin__body-btn btn_disable" >
+                    <i class="fa-solid fa-angle-right"></i>
+                </a>
+   </div>
+   <form style="display:none;" method="post" th:action="@{/}" class="formAction"></form>
+   </th:block>
+   <div class="modal" style="display:none;" th:if="${request}">
+        <form th:action="@{/admin/discount/create}" method="post" class="admin__form" th:object="${request}">
+            <button type="button" class="admin__form-exit" onclick="closeModal()">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h2 class="admin__form-header">Thêm mã giảm giá</h2>
+            <div class="admin__form-group">
+                <label for="">Mã giảm giá:</label><br>
+                <input class="admin__form-input" type="text" th:field="*{code}" placeholder="Mã giảm giá">
+            </div>
+            <div class="admin__form-group">
+                <label for="">Số lượt sử dụng:</label><br>
+                <input class="admin__form-input" type="text" th:field="*{turn}" placeholder="Số lượt sử dụng">
+            </div>
+            <div class="admin__form-group">
+                <label for="">Giảm:</label><br>
+                <input class="admin__form-input" type="text" th:field="*{discount}" placeholder="Giảm">
+            </div>
+            <button class="admin__form-btn btn_hover" type="submit">Xác nhận</button>
+
+        </form>
+    </div>
+   <p th:if="${data.getTotalElements() == 0}" style="margin-top:120px;font-size:1.2rem;"> Không có bản ghi nào, vui lòng thêm mới.</p>
+ </th:block>
+</html>

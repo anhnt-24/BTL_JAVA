@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="main">
+<body>
+<th:block layout:fragment="content">
+    <div class="main__container">
+    <div id="productdetail" class="row">
+        
+        <div class="productdetail__pic-container collumn-3">
+            <img class="productdetail__main-img"  th:src="@{'/uploads/'+${product.color[0].img}}" alt="">
+            <i class="fa-solid fa-angle-left productdetail__carousel-left"></i>
+            <i class="fa-solid fa-angle-right productdetail__carousel-right"></i>
+            <div class="productdetail__carousel">
+                <img  th:each="item : ${product.color}" class="productdetail__carousel-item" th:src="@{'/uploads/'+${item.img}}"  alt="">
+            </div>
+            <div class="productdetail__status-container">
+                <div class="productdetail__staus-share">
+                    Chia sẻ:
+                    <a href="">
+
+                        <img th:src="@{/assets/img/Facebook.png}" alt="" class="productdetail__staus-share-item">
+                    </a>
+                    <a href="">
+                        <img th:src="@{/assets/img/Pinterest.png}" alt="" class="productdetail__staus-share-item">
+                    </a>
+                    <a href="">
+                        <img th:src="@{/assets/img/Messenger.png}" alt="" class="productdetail__staus-share-item">
+                    </a>
+
+                </div>
+                <div class="productdetail__status-like">
+                    <i style="margin-right: 6px;" class="fa-regular fa-heart"></i>
+                    Thích
+                </div>
+            </div>
+        </div>
+        <div class="productdetail__detail collumn-6">
+            <h2 class="productdetail__header" th:text="${product.name}"></h2>
+            <form class="productdetail__info-container" th:action="@{/}" method="POST">
+                <div class="productdetail__info-group">
+                    <label class="productdetail__info-label" for="color">Giá: </label>
+                    <input style="color:red; font-weight:500;font-size:1.8rem;" type="text" class="productdetail__info-input" th:value="${product.priceVnd}" disabled>
+                    <input type="text" name="price" th:value="${product.price}" style="display: none;">
+                </div>
+                <div class="productdetail__info-group">
+                    <label class="productdetail__info-label" for="input">Bảo hiểm: </label>
+                    <input type="text" class="productdetail__info-input" name="insurance" value="Bảo hiểm thời trang" disabled>
+                    <input type="text" name="insurance" value="Bảo hiểm thời trang" style="display: none;" required>
+
+                </div>
+                
+                <div class="productdetail__info-group productdetail__info-group-color">
+
+                    <label class="productdetail__info-label " for="color">Màu sắc: </label>
+                    <th:block th:each="item : ${product.color}">
+                        <button class="productdetail__info-input productdetail__info-input-disabled" type="button" name="color" th:value="${item.id}">
+                            <img class="productdetail__info-color-pic" th:src="@{'/uploads/' + ${item.img}}" alt="">
+                            <span th:text="${item.color}"></span>
+                        </button>
+                    </th:block>
+                    <input type="text" name="color" style="display:none" required>
+
+                </div>
+                <div class="productdetail__info-group productdetail__info-group-size">
+                    <label class="productdetail__info-label" for="color">Kích cỡ:  </label>
+                   	<th:block th:each="item : ${product.size}">
+                        <button type="button" class="productdetail__info-input productdetail__info-input-disabled" name="size" th:value="${item.id}" th:text="${item.size}"></button>
+	                 </th:block>   
+                    <input type="text" name="size" style="display:none" required>
+            
+                </div>
+                <div class="productdetail__info-group productdetail__info-group-quantity">
+                    <label class=" productdetail__info-label" for="transport">Số lượng: </label>
+                    <button class="productdetail__info-input productdetail__quantity-minus" type="button">
+                        -
+                    </button>
+                    <input type="text" class="productdetail__info-input" name="quantity" th:name="quantity" th:value="1">
+                    <button class="productdetail__info-input productdetail__quantity-plus" type="button">
+                        +
+                    </button>
+                    <p class="productdetail__stock-quantity">
+                    
+                    </p>
+
+                </div>
+                <div class="productdetail__info-group">
+                    <button onclick="checkform('/my-cart/create')" class="productdetail__btn-addtocart btn_hover" type="submit" >
+                        <span>
+                            <i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ hàng</button>
+                        </span>
+                    <input onclick="checkform('/payment/processMono')" class="productdetail__btn-buy btn_hover" type="submit" value="Mua ngay">
+
+                </div>
+                <div style="display: none;"> 
+                    
+                    <input type="text" th:field="${cartRequest.size_color_id}")>
+                </div>
+            </form> 
+            <div class="productdetail__footer">
+                <p class="productdetail__footer-item">
+                    <i class="fa-solid fa-box"></i>
+                    Đổi miễn phí 15 ngày
+                </p>
+                <p class="productdetail__footer-item">
+                    <i class="fa-solid fa-circle-check"></i>
+                    Hàng chính hãng 100%
+                </p>
+                <p class="productdetail__footer-item">
+                    <i class="fa-solid fa-truck-fast"></i>
+                    Miễn phí vận chuyển
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://esgoo.net/scripts/jquery.js"></script>
+<script th:inline="javascript">
+     function checkform(url){
+         if(!document.querySelector('.productdetail__info-container').checkValidity()){
+                 renderInforModal('Vui lòng chọn size và màu sắc',false,'')
+
+         }else{
+             document.querySelector('.productdetail__info-container').action=url
+             this.submit()
+         }
+     }
+     
+ </script>
+
+  <script th:inline="javascript">
+        _$=document.querySelector.bind(document)
+        _$_$=document.querySelectorAll.bind(document)
+        var main_pic=_$(".productdetail__main-img")
+        var productlist_carousel=_$(".productdetail__carousel")
+        var productdetail__carousel_list=_$_$(".productdetail__carousel-item")
+        var carousel_idx=0
+        productdetail__carousel_list[0].classList.add('productdetail__carousel-item-active')
+        var carousel_length=productdetail__carousel_list.length
+        
+        
+        for(let item of productdetail__carousel_list){
+            item.onclick=function(){
+                carousel_idx=Array.prototype.indexOf.call(productdetail__carousel_list,this)
+               var productdetail__carousel_item_active=_$('.productdetail__carousel-item-active')
+               productdetail__carousel_item_active.classList.remove('productdetail__carousel-item-active')
+               this.classList.add('productdetail__carousel-item-active')
+                main_pic.src=this.src
+            }
+        }
+        let size_color=/*[[${product.size_color}]]*/[]
+        stock={
+           
+
+        }
+        
+        for(let item of size_color){
+        	str=item.sizeId+"_"+item.colorId
+        	stock[str]=[item.stock,item.id]
+        }
+       
+
+
+        var productdetail_dir_right=_$('.productdetail__carousel-right')
+        var productdetail_dir_left=_$('.productdetail__carousel-left')
+        productdetail_dir_left.onclick=()=>{
+            if(carousel_idx>0){
+                carousel_idx--
+                var productdetail__carousel_item_active=_$('.productdetail__carousel-item-active')
+               productdetail__carousel_item_active.classList.remove('productdetail__carousel-item-active')
+               productdetail__carousel_list[carousel_idx].classList.add('productdetail__carousel-item-active')
+                productlist_carousel.style.right=productdetail__carousel_item_active.offsetWidth*carousel_idx+'px'
+                main_pic.src=productdetail__carousel_list[carousel_idx].src
+    
+            }
+        }
+        productdetail_dir_right.onclick=()=>{
+            if(carousel_idx<carousel_length-1){
+                carousel_idx++
+                var productdetail__carousel_item_active=_$('.productdetail__carousel-item-active')
+               productdetail__carousel_item_active.classList.remove('productdetail__carousel-item-active')
+               productdetail__carousel_list[carousel_idx].classList.add('productdetail__carousel-item-active')
+                    productlist_carousel.style.right=productdetail__carousel_item_active.offsetWidth*carousel_idx+'px'
+                main_pic.src=productdetail__carousel_list[carousel_idx].src
+    
+            }
+        }
+        // Like
+        var productdetail__status_like=_$('.productdetail__status-like')
+        productdetail__status_like.onclick=()=>{
+            productdetail__status_like.querySelector('i').classList.toggle('fa-solid')
+            productdetail__status_like.querySelector('i').classList.toggle('fa-regular')
+    
+        }
+    
+
+       
+        function stockChange(){
+            var inputColor=_$('input[name="color"]')
+            var inputSize=_$('input[name="size"]')
+            let size_color=_$('input[name="size_color_id"]')
+            let id=`${inputSize.value}_${inputColor.value}`
+            if(stock[id][0]){
+                _$(".productdetail__stock-quantity").innerText=`Có sẵn  ${stock[id][0]} sản phẩm`
+                size_color.value=stock[id][1]
+            }
+        }
+        
+        // Color
+        var productdetail_group_color=_$('.productdetail__info-group-color')
+        var productdetail_color_choice=productdetail_group_color.querySelectorAll('.productdetail__info-input')
+        var productdetail_group_size=_$('.productdetail__info-group-size')
+        var productdetail_size_choice=productdetail_group_size.querySelectorAll('.productdetail__info-input')
+        
+        
+        for (let button of productdetail_color_choice){
+            button.onclick=()=>{
+            	let color_value=button.value
+            	for (let size of productdetail_size_choice){
+            		let id=`${size.value}_${color_value}`
+            		if(stock[id] && stock[id][0]!=0){
+            			size.disabled=false
+            		}else{
+            			size.disabled=true
+            		}
+            		
+            	}
+                
+                carousel_idx=Array.prototype.indexOf.call(productdetail_color_choice,button)
+                var productdetail__carousel_item_active=_$('.productdetail__carousel-item-active')
+                productdetail__carousel_item_active.classList.remove('productdetail__carousel-item-active')
+                productdetail__carousel_list[carousel_idx].classList.add('productdetail__carousel-item-active')
+                productlist_carousel.style.right=productdetail__carousel_item_active.offsetWidth*carousel_idx+'px'
+                main_pic.src=productdetail__carousel_list[carousel_idx].src
+    
+
+                var productdetail_color_choice_active=productdetail_group_color.querySelector('.productdetail__info-item-active')
+                if(productdetail_color_choice_active)
+                    productdetail_color_choice_active.classList.remove('productdetail__info-item-active')
+                button.classList.add('productdetail__info-item-active')
+                productdetail_group_color.querySelector('input').value=button.value
+                stockChange()
+                
+            }
+        }
+        // Size
+       
+        for (let button of productdetail_size_choice){
+            button.onclick=()=>{
+            	let size_value=button.value
+            	for (let color of productdetail_color_choice){
+            		let id=`${size_value}_${color.value}`
+            		if(stock[id] && stock[id][0]!=0){
+            			color.disabled=false
+            		}else{
+            			color.disabled=true
+            		}
+            		
+            	}
+            	
+                var productdetail_size_choice_active=productdetail_group_size.querySelector('.productdetail__info-item-active')
+                if(productdetail_size_choice_active)
+                    productdetail_size_choice_active.classList.remove('productdetail__info-item-active')
+
+                button.classList.add('productdetail__info-item-active')
+                productdetail_group_size.querySelector('input').value=button.value
+                stockChange()
+                
+            }
+        }
+        // Quantity
+        var productdetail_group_quantity=_$('.productdetail__info-group-quantity')
+        var productdetail_group_quantity_status=productdetail_group_quantity.querySelector('input')
+        var productdetail_quantity_minus=productdetail_group_quantity.querySelector('.productdetail__quantity-minus')
+        var productdetail_quantity_plus=productdetail_group_quantity.querySelector('.productdetail__quantity-plus')
+    
+        var quantity=1
+        productdetail_group_quantity_status.onblur=function(){
+            if(!this.value || this.value<=0) this.value=1
+        }
+        productdetail_quantity_minus.onclick=function(){
+            if(quantity>1){
+                quantity--;
+                productdetail_group_quantity_status.value=quantity
+            }
+    
+        }
+        productdetail_quantity_plus.onclick=function(){
+                quantity++;
+                productdetail_group_quantity_status.value=quantity
+        }
+        var updatequantity= function(e){
+            if(e.keyCode===13){
+                e.preventDefault()
+                e.target.blur()
+            }
+            quantity=Number(productdetail_group_quantity_status.value)
+            productdetail_group_quantity_status.value=quantity
+            
+    
+        }
+        productdetail_group_quantity_status.onkeydown=updatequantity
+        productdetail_group_quantity_status.onchange=updatequantity
+        
+        
+    
+    
+        
+    </script>
+
+</th:block>>
+</body>
+
+</html>

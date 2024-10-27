@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/admin/admin.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" th:href="@{/css/base.css}">
+    <link rel="stylesheet" th:href="@{/css/admin/dashboard.css}">
+    
+</head>
+<body>
+    <div id="admin">
+        <div class="admin__navbar">
+        	<div class="admin__navbar-container">
+	            <p class="admin__navbar-header">Sopi</p>
+	            <button onclick="navigateToURL('/admin/dashboard')" name="dashboard" class="admin__navbar-item"><i class="fa-solid fa-house"></i> Trang chủ</button>
+	            <button onclick="navigateToURL('/admin/user')" name="user" class="admin__navbar-item"><i class="fa-solid fa-user"></i> Khách hàng</button>
+	            <button onclick="navigateToURL('/admin/product')" name="product" class="admin__navbar-item"><i class="fa-solid fa-box"></i> Sản phẩm</button>
+	            <button onclick="navigateToURL('/admin/sizeandcolor')" name="colorAndsize" class="admin__navbar-item">- Chi tiết sản phẩm</button>
+	            <button onclick="navigateToURL('/admin/order')" name="order" class="admin__navbar-item"><i class="fa-solid fa-bag-shopping"></i> Đơn hàng</button>
+	            <button onclick="navigateToURL('/admin/orderitem')" name="orderItem" class="admin__navbar-item">  - Chi tiết đơn hàng</button>
+	            <button onclick="navigateToURL('/admin/discount')" name="discount" class="admin__navbar-item"><i class="fa-solid fa-ticket"></i> Mã giảm giá</button>
+	            <button onclick="navigateToURL('/admin/logout')" class="admin__navbar-item"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</button>
+			</div>	            
+            <div class="admin__body-header-arrow">
+                <div class="admin__body-header-arrow-after"></div>
+            </div>
+        </div>
+            <div class="admin__body-header">
+                <p class="admin__body-header-title"></p>
+                <div class="admin__body-header-group">
+                    <a href=""><i class="fa-solid fa-bell"></i></a>
+                    <a href=""><i class="fa-solid fa-magnifying-glass"></i></a>
+                    <div style="position: relative;" class="admin__list-user">
+                        <a href=""><img class="admin__body-header-group-img" th:src="${UserAuth.img != '' &&  UserAuth.img != null } ? @{/uploads/{img}(img=${UserAuth.img})} : @{/assets/default_user-img.png}"
+                     alt=""></a>
+                        <div class="admin__list-user-btn-container">
+                            <a class="admin__list-user-btn" th:href="@{/my-info}">Tài khoản</a>
+                            <a class="admin__list-user-btn" th:href="@{/authenticate/send/change/password}" >Đổi mật khẩu</a>
+                            <a class="admin__list-user-btn" th:href="@{/}" >Trang của tôi</a>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        <div class="admin__body">
+            
+            <th:block layout:fragment="content"> </th:block>
+           
+        </div>
+    </div>
+    <script src="https://esgoo.net/scripts/jquery.js"></script>
+    <script th:src="@{/js/modal-info.js}"></script>
+
+    <script th:inline="javascript">
+    	var message=/*[[${message}]]*/ ""
+		var linkImgSuccess=/*[[@{"/assets/img/success.png"}]]*/ ""
+		if(message){
+			renderModalSuccess(linkImgSuccess,message)
+		}
+    	var info=/*[[${info}]]*/ ""
+    		if(info){
+    			renderInforModal(info,false,0)
+    		}
+    		
+    	var namebtn_active=/*[[${activeTitle}]]*/ ""
+    	var btn_active=$(`.admin__navbar-item[name=${namebtn_active}]`);
+    	var innerhtml_btn_active = btn_active.html()
+    	btn_active.addClass("admin__navbar-item-active")
+   		$('.admin__body-header-title').html(innerhtml_btn_active)
+    	
+        $('.admin__body-header-arrow').click(function () {
+            $('.admin__navbar').toggleClass("admin__navbar-close")        
+            $('.admin__body-header').toggleClass("admin__body-header-stretch")
+
+        })
+      </script>
+      
+      <script>
+	    function closeModal(){
+	          $(".modal").css("display","none")
+	    }
+	    function openModal(){
+	    	 $(".modal").css("display","flex")
+	    }
+	    function loading(){
+	          $('.admin__body').html(`<div class="loading__group" style="display: flex; flex-direction: column; justify-content: center; align-items: center; justify-self: center; flex: 1; ">
+	                  <div class="loading"></div>
+	                  <p class="loading__title" for="">Đang tải</p>
+	              </div>`)
+	      }
+        function navigateToURL(url) {
+	        window.location.href = url;
+	    }
+        function setFormAction(link){
+    		$('.formAction').attr('action',link)
+			$('.formAction').submit()
+    	}
+    	function updateStatus(message,link){
+    		$('.formAction').attr('action',link)
+    		var a= function(){
+				$('.formAction').submit()
+    		}
+	    	renderInforModal(message,true,a)   		
+    	}
+    </script>
+</body>
+</html>

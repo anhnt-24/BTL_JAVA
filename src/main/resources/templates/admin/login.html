@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" th:href="@{/css/base.css}">
+    <link rel="stylesheet" th:href="@{/css/admin/login.css}">
+</head>
+<body>
+	
+    <div id="login">
+    <p th:if="${param.error}"  style="margin-bottom:20px;"class="error">Tài khoản hoặc mật khẩu sai, vui lòng nhập lại!</p>
+	 <p th:if="${messageResponse != null && messageResponse.status == 'error'}" class="error" th:text="${messageResponse.message}"></p>
+	 <p th:if="${messageResponse != null && messageResponse.status == 'success'}" class="error" style=" background-color:#00800021; border:1px solid green;" th:text="${messageResponse.message}"></p>
+            <form class="login__form" method="post" th:action="@{/admin/login}">
+                <h2 class="login__form-header">Đăng nhập</h2>
+                <div class="login__form-group">
+                    <label for="">Tài khoản:</label><br>
+                    <input type="text" name="username" placeholder="Tài khoản">
+                </div>
+                <div class="login__form-group">
+                    <label for="">Mật khẩu:</label><br>
+                    <input type="password" name="password" placeholder="Mật khẩu">
+                <span class="show_password show-btn"><i class="fas fa-eye"></i></span>
+                </div>
+                <div class="login__form-group">
+                    <a  class="link_hover"  th:href="@{/authenticate/forget/password}">Quên mật khẩu?</a>
+                    <button type="submit" class="login__form-group-btn btn_hover" >Đăng nhập</button>
+                </div>
+                
+                
+            </form>
+    </div>
+    <script th:src="@{/js/showpassword.js}"></script>
+        
+</body>
+</html>
